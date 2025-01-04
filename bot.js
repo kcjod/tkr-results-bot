@@ -46,7 +46,7 @@ const processStudentData = async (chatId, rollno) => {
         chatId,
         `If the entered roll number is not found, then I'll show the previous data.`
       );
-      sendResultRequest();
+      await sendResultRequest();
 
       const studentData = await runPythonScript("scrape.py");
 
