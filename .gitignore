@@ -1,2 +1,5 @@
 node_modules
 .env
+getSessionId.js
+logincodev2.js
+maincode.js
