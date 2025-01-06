@@ -1,5 +1,6 @@
 import TelegramBot from "node-telegram-bot-api";
-import { sendLoginRequest } from "./logincode.js";
+import { getSessionId } from "./getSessionId.js";
+import { sendLoginRequest } from "./logincodev2.js";
 import { sendResultRequest } from "./results.js";
 import { spawn } from "child_process";
 import dotenv from "dotenv/config";
@@ -39,25 +40,41 @@ const runPythonScript = (scriptPath) => {
 
 const processStudentData = async (chatId, rollno) => {
   try {
-    const loginStatus = await sendLoginRequest(rollno);
+    // Step 1: Get Session ID
+    const sessionId = await getSessionId();
+    console.log("Session ID:", sessionId);
 
-    if (loginStatus === 200) {
-      bot.sendMessage(
-        chatId,
-        `If the entered roll number is not found, then I'll show the previous data.`
-      );
-      await sendResultRequest();
+    // Step 2: Perform Login Request
+    const loginData = await sendLoginRequest(rollno, sessionId);
 
-      const studentData = await runPythonScript("scrape.py");
+    // Step 3: Extract Cookies from Response Headers
+    const setCookieHeader = loginData.headers?.["set-cookie"] || [];
+    let antiXsrfToken = "";
 
-      // Send the scraped student data to the user
-      bot.sendMessage(chatId, studentData);
-    } else {
-      bot.sendMessage(chatId, "Something went wrong. Please try again.");
+    // Parse the cookies to extract `__AntiXsrfToken`
+    setCookieHeader.forEach((cookie) => {
+      if (cookie.startsWith("__AntiXsrfToken=")) {
+        antiXsrfToken = cookie.split(";")[0].split("=")[1];
+      }
+    });
+
+    if (!antiXsrfToken) {
+      throw new Error("AntiXsrfToken not found in response cookies.");
     }
+
+    // console.log("AntiXsrfToken:", antiXsrfToken);
+
+    // Step 4: Request Results Data
+    await sendResultRequest(sessionId, antiXsrfToken);
+
+    // Step 5: Run Python Script to Scrape Data
+    const studentData = await runPythonScript("scrape.py");
+
+    // Send the scraped student data to the user
+    bot.sendMessage(chatId, studentData);
   } catch (error) {
     console.error(error);
-    bot.sendMessage(chatId, "An error occurred while processing the data.");
+    bot.sendMessage(chatId, "An error occurred while processing the data. Please try again.");
   }
 };
 
@@ -79,7 +96,7 @@ bot.on("message", (msg) => {
 
     // Check if roll number is valid (10 characters long)
     if (rollno.length !== 10) {
-      bot.sendMessage(chatId, "Please enter a valid roll number");
+      bot.sendMessage(chatId, "Please enter a valid roll number.");
       return;
     }
 
