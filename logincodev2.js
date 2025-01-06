@@ -49,8 +49,8 @@ export const sendLoginRequest = async (rollno, sessionId) => {
 
   try {
     const response = await axios.request(config);
-    console.log(config.headers.cookie);
-    console.log(`Login successful for ${rollno}`);
+    // console.log(config.headers.cookie);
+    // console.log(`Login successful for ${rollno}`);
     return response;
   } catch (error) {
     console.error("Error occurred:", error.message);

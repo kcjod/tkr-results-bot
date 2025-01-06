@@ -42,7 +42,7 @@ const processStudentData = async (chatId, rollno) => {
   try {
     // Step 1: Get Session ID
     const sessionId = await getSessionId();
-    console.log("Session ID:", sessionId);
+    // console.log("Session ID:", sessionId);
 
     // Step 2: Perform Login Request
     const loginData = await sendLoginRequest(rollno, sessionId);
