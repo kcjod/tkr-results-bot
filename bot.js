@@ -74,14 +74,14 @@ const processStudentData = async (chatId, rollno) => {
     bot.sendMessage(chatId, studentData);
   } catch (error) {
     console.error(error);
-    bot.sendMessage(chatId, "An error occurred while processing the data. Please try again.");
+    bot.sendMessage(chatId, "Something went wrong🥲");
   }
 };
 
 // Handle `/start` command
 bot.onText(/\/start/, (msg) => {
   const chatId = msg.chat.id;
-  bot.sendMessage(chatId, "Welcome! Please enter your roll number.");
+  bot.sendMessage(chatId, "Hey TKRian😊! Please enter your roll number.");
 });
 
 // Handle user messages (roll number input)
