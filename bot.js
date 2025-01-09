@@ -40,9 +40,12 @@ const runPythonScript = (scriptPath) => {
 
 const processStudentData = async (chatId, rollno) => {
   try {
+    // Send "Loading..." message and store the message ID
+    const loadingMessage = await bot.sendMessage(chatId, "Loading...");
+    const loadingMessageId = loadingMessage.message_id;
+
     // Step 1: Get Session ID
     const sessionId = await getSessionId();
-    // console.log("Session ID:", sessionId);
 
     // Step 2: Perform Login Request
     const loginData = await sendLoginRequest(rollno, sessionId);
@@ -62,26 +65,30 @@ const processStudentData = async (chatId, rollno) => {
       throw new Error("AntiXsrfToken not found in response cookies.");
     }
 
-    // console.log("AntiXsrfToken:", antiXsrfToken);
-
     // Step 4: Request Results Data
     await sendResultRequest(sessionId, antiXsrfToken);
 
     // Step 5: Run Python Script to Scrape Data
     const studentData = await runPythonScript("scrape.py");
 
+    // Delete the "Loading..." message
+    await bot.deleteMessage(chatId, loadingMessageId);
+
     // Send the scraped student data to the user
     bot.sendMessage(chatId, studentData);
   } catch (error) {
     console.error(error);
-    bot.sendMessage(chatId, "An error occurred while processing the data. Please try again.");
+    bot.sendMessage(
+      chatId,
+      "An error occurred while processing the data. Please try again."
+    );
   }
 };
 
 // Handle `/start` command
 bot.onText(/\/start/, (msg) => {
   const chatId = msg.chat.id;
-  bot.sendMessage(chatId, "Welcome! Please enter your roll number.");
+  bot.sendMessage(chatId, "Hey TKRian😊! Please enter your roll number.");
 });
 
 // Handle user messages (roll number input)
