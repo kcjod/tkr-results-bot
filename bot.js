@@ -39,11 +39,9 @@ const runPythonScript = (scriptPath) => {
 };
 
 const processStudentData = async (chatId, rollno) => {
+  const loadingMessage = await bot.sendMessage(chatId, "Loading...");
+  const loadingMessageId = loadingMessage.message_id;
   try {
-    // Send "Loading..." message and store the message ID
-    const loadingMessage = await bot.sendMessage(chatId, "Loading...");
-    const loadingMessageId = loadingMessage.message_id;
-
     // Step 1: Get Session ID
     const sessionId = await getSessionId();
 
@@ -77,18 +75,15 @@ const processStudentData = async (chatId, rollno) => {
     // Send the scraped student data to the user
     bot.sendMessage(chatId, studentData);
   } catch (error) {
-    console.error(error);
-    bot.sendMessage(
-      chatId,
-      "An error occurred while processing the data. Please try again."
-    );
+    // console.error(error);
+    await bot.deleteMessage(chatId, loadingMessageId);
+    bot.sendMessage(chatId, "Something went wrong😥");
   }
 };
 
 // Handle `/start` command
 bot.onText(/\/start/, (msg) => {
   const chatId = msg.chat.id;
-  bot.sendMessage(chatId, "Hey TKRian😊! Please enter your roll number.");
   bot.sendMessage(chatId, "Hey TKRian😊! Please enter your roll number.");
 });
 
