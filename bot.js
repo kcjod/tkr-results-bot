@@ -6,6 +6,7 @@ import { spawn } from "child_process";
 import dotenv from "dotenv/config";
 
 const token = process.env.TELEGRAM_BOT_TOKEN;
+const users = [];
 
 // Create a new Telegram bot instance with polling enabled
 const bot = new TelegramBot(token, { polling: true });
@@ -69,44 +70,88 @@ const processStudentData = async (chatId, rollno) => {
     // Step 5: Run Python Script to Scrape Data
     const studentData = await runPythonScript("scrape.py");
 
-    // Delete the "Loading..." message
-    await bot.deleteMessage(chatId, loadingMessageId);
-
     // Send the scraped student data to the user
     bot.sendMessage(chatId, studentData);
+
+    // Delete the "Loading..." message
+    await bot.deleteMessage(chatId, loadingMessageId);
   } catch (error) {
     // console.error(error);
     await bot.deleteMessage(chatId, loadingMessageId);
-    bot.sendMessage(chatId, "Something went wrong😥");
+    bot.sendMessage(chatId, "I'm unable to fetch your results😥");
+    bot.sendMessage(chatId, "/help for details");
   }
 };
-
 // Handle `/start` command
 bot.onText(/\/start/, (msg) => {
   const chatId = msg.chat.id;
-  bot.sendMessage(chatId, "Hey TKRian😊! Please enter your roll number.");
+  // console.log(chatId)
+  bot.sendMessage(
+    chatId,
+    "Hey TKRian😊! Please enter your roll number for results."
+  );
+});
+
+// Handle `/support` command
+bot.onText(/\/support/, (msg) => {
+  const chatId = msg.chat.id;
+  bot.sendMessage(chatId, "Thank you for supporting us! More features are coming soon.");
+});
+
+// Handle `/help` command
+bot.onText(/\/help/, (msg) => {
+  const chatId = msg.chat.id;
+  bot.sendMessage(
+    chatId,
+    "Commands you can use:\n/start - Start the bot\n/support - Show support message\n/help - List all commands"
+  );
+});
+
+bot.onText(/\/analytics/, (msg) => {
+  const chatId = msg.chat.id;
+  if(chatId !== process.env.ADMIN_CHAT_ID) {
+    bot.sendMessage(
+      chatId,
+      "You are not authorized to view this data."
+    );
+  }
+  bot.sendMessage(
+    chatId,
+    `Analytics:\nTotal users: ${users.length}\nUsers:\n${users.map((u) => `${u.rollNo} | ${u.date}`).join("\n")}`
+  );
 });
 
 // Handle user messages (roll number input)
 bot.on("message", (msg) => {
   const chatId = msg.chat.id;
-  const message = msg.text.toUpperCase();
-  const userMessage = message;
+  const message = msg.text.trim();
 
-  // If the message is not a command, treat it as a roll number
-  if (!userMessage.startsWith("/")) {
-    const rollno = userMessage.trim();
-
-    // Check if roll number is valid (10 characters long)
-    if (rollno.length !== 10) {
-      bot.sendMessage(chatId, "Please enter a valid roll number.");
-      return;
-    }
-
-    if (rollno) {
-      processStudentData(chatId, rollno);
-    } else {
-      bot.sendMessage(chatId, "Please enter a valid roll number.");
-    }
+  // If the message starts with `/`, it's a command, so do nothing further
+  if (message.startsWith("/")) {
+    return;
   }
+
+  // Treat the message as a roll number
+  const rollno = message.toUpperCase();
+
+  // Check if roll number is valid (10 characters long)
+  if (rollno.length !== 10) {
+    bot.sendMessage(chatId, "Please enter a valid roll number.");
+    return;
+  }
+  const myUser = {
+    rollNo: rollno,
+    chatId: chatId,
+    date: new Date().toLocaleString('en-US', {
+      year: 'numeric',
+      month: 'numeric',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    }),
+  }
+  if (!users.find((r) => r.rollNo === rollno)) {
+    users.push(myUser);
+  }  
+  processStudentData(chatId, rollno);
 });
