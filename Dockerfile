@@ -32,8 +32,5 @@ COPY . .
 # Set environment variables
 ENV NODE_ENV=production
 
-# Expose the necessary port (default for many Node.js apps is 3000)
-EXPOSE 3000
-
 # Set the default command to start your application
 CMD ["yarn", "start"]
