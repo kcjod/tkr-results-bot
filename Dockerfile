@@ -17,13 +17,13 @@ RUN pip3 install beautifulsoup4
 WORKDIR /usr/src/app
 
 # Copy package.json and package-lock.json (if available) for Node.js dependencies
-COPY package*.json ./
+COPY package.json ./
 
 # Install Node.js dependencies
-RUN npm install
+RUN yarn install
 
 # Copy the rest of the application files
 COPY . .
 
 # Set the default command to start your Node.js application
-CMD ["npm", "start"]
+CMD ["yarn", "start"]
