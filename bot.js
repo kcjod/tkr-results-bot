@@ -6,6 +6,7 @@ import { spawn } from "child_process";
 import dotenv from "dotenv/config";
 
 const token = process.env.TELEGRAM_BOT_TOKEN;
+const adminChatId = Number(process.env.ADMIN_CHAT_ID);
 const users = [];
 
 // Create a new Telegram bot instance with polling enabled
@@ -110,7 +111,7 @@ bot.onText(/\/help/, (msg) => {
 bot.onText(/\/analytics/, (msg) => {
   const chatId = msg.chat.id;
   console.log(chatId)
-  if(chatId !== process.env.ADMIN_CHAT_ID) {
+  if(chatId !== adminChatId) {
     bot.sendMessage(
       chatId,
       "You are not authorized to view this data."
