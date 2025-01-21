@@ -13,9 +13,9 @@ const users = [];
 const bot = new TelegramBot(token, { polling: true });
 
 // Function to run the Python script and capture the output
-const runPythonScript = (scriptPath) => {
+const runPythonScript = (scriptPath, rollNo) => {
   return new Promise((resolve, reject) => {
-    const pythonProcess = spawn("python", [scriptPath]);
+    const pythonProcess = spawn("python", [scriptPath, rollNo]);
 
     let outputData = "";
 
@@ -66,10 +66,10 @@ const processStudentData = async (chatId, rollno) => {
     }
 
     // Step 4: Request Results Data
-    await sendResultRequest(sessionId, antiXsrfToken);
+    await sendResultRequest(rollno, sessionId, antiXsrfToken);
 
     // Step 5: Run Python Script to Scrape Data
-    const studentData = await runPythonScript("scrape.py");
+    const studentData = await runPythonScript("scrape.py",rollno);
 
     // Send the scraped student data to the user
     bot.sendMessage(chatId, studentData);
@@ -96,7 +96,10 @@ bot.onText(/\/start/, (msg) => {
 // Handle `/support` command
 bot.onText(/\/support/, (msg) => {
   const chatId = msg.chat.id;
-  bot.sendMessage(chatId, "Thank you for supporting us! More features are coming soon.");
+  bot.sendMessage(
+    chatId,
+    "Thank you for supporting us! More features are coming soon."
+  );
 });
 
 // Handle `/help` command
@@ -111,16 +114,15 @@ bot.onText(/\/help/, (msg) => {
 bot.onText(/\/analytics/, (msg) => {
   const chatId = msg.chat.id;
   // console.log(chatId)
-  if(chatId !== adminChatId) {
-    bot.sendMessage(
-      chatId,
-      "You are not authorized to view this data."
-    );
+  if (chatId !== adminChatId) {
+    bot.sendMessage(chatId, "You are not authorized to view this data.");
     return;
   }
   bot.sendMessage(
     chatId,
-    `Analytics:\nTotal users: ${users.length}\nUsers:\n${users.map((u) => `${u.rollNo} | ${u.date}`).join("\n")}`
+    `Analytics:\nTotal users: ${users.length}\nUsers:\n${users
+      .map((u) => `${u.rollNo} | ${u.date}`)
+      .join("\n")}`
   );
 });
 
@@ -145,14 +147,14 @@ bot.on("message", (msg) => {
   const myUser = {
     rollNo: rollno,
     chatId: chatId,
-    date: new Intl.DateTimeFormat('en-US', {
-      year: 'numeric',
-      month: 'numeric',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
+    date: new Intl.DateTimeFormat("en-US", {
+      year: "numeric",
+      month: "numeric",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
       hour12: true,
-      timeZone: 'Asia/Kolkata',
+      timeZone: "Asia/Kolkata",
     }).format(new Date()),
   };
   const thisUser = users.find((r) => r.rollNo === rollno);

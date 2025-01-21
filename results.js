@@ -1,7 +1,7 @@
 import axios from "axios";
 import fs from "fs";
 
-export const sendResultRequest = async (sessionId, antiXsrfToken) => {
+export const sendResultRequest = async (rollNo, sessionId, antiXsrfToken) => {
   // Construct the cookie dynamically
   const cookieHeader = `${sessionId};__AntiXsrfToken=${antiXsrfToken}`;
   // console.log(cookieHeader)
@@ -35,7 +35,7 @@ export const sendResultRequest = async (sessionId, antiXsrfToken) => {
 
   try {
     const response = await axios.request(config);
-    fs.writeFileSync("data.html", response.data, "utf-8");
+    fs.writeFileSync(`${rollNo}.html`, response.data, "utf-8");
     // console.log("Data successfully written to data.html");
   } catch (error) {
     console.error("Error occurred", error.message);

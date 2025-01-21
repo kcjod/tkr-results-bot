@@ -1,4 +1,5 @@
 import os
+import sys
 from bs4 import BeautifulSoup
 
 # Function to scrape values for given IDs
@@ -35,7 +36,8 @@ def scrape_values_by_ids(file_path, ids):
         print(f"An error occurred: {e}")
 
 # Example usage
-file_path = 'data.html'
+file_path = sys.argv[1] + '.html'
+
 ids = [
     'lblStudName',
     'lblHTNo',

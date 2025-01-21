@@ -32,5 +32,7 @@ COPY . .
 # Set environment variables
 ENV NODE_ENV=production
 
+EXPOSE 80
+
 # Set the default command to start your application
 CMD ["yarn", "start"]
