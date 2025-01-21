@@ -144,14 +144,16 @@ bot.on("message", (msg) => {
   const myUser = {
     rollNo: rollno,
     chatId: chatId,
-    date: new Date().toLocaleString('en-US', {
+    date: new Intl.DateTimeFormat('en-US', {
       year: 'numeric',
       month: 'numeric',
       day: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
-    }),
-  }
+      hour12: true,
+      timeZone: 'Asia/Kolkata',
+    }).format(new Date()),
+  };
   if (!users.find((r) => r.rollNo === rollno)) {
     users.push(myUser);
   }  
