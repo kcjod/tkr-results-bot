@@ -8,7 +8,8 @@ RUN apt-get update && apt-get install -y \
     lsb-release \
     && curl -sL https://deb.nodesource.com/setup_16.x | bash - \
     && apt-get install -y nodejs \
-    && apt-get install -y python3-pip
+    && apt-get install -y python3-pip \
+    npm install -g yarn
 
 # Install Python dependencies (e.g., BeautifulSoup)
 RUN pip3 install beautifulsoup4
