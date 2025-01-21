@@ -109,11 +109,13 @@ bot.onText(/\/help/, (msg) => {
 
 bot.onText(/\/analytics/, (msg) => {
   const chatId = msg.chat.id;
+  console.log(chatId)
   if(chatId !== process.env.ADMIN_CHAT_ID) {
     bot.sendMessage(
       chatId,
       "You are not authorized to view this data."
     );
+    return;
   }
   bot.sendMessage(
     chatId,
