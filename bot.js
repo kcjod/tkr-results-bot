@@ -110,7 +110,7 @@ bot.onText(/\/help/, (msg) => {
 
 bot.onText(/\/analytics/, (msg) => {
   const chatId = msg.chat.id;
-  console.log(chatId)
+  // console.log(chatId)
   if(chatId !== adminChatId) {
     bot.sendMessage(
       chatId,
@@ -155,8 +155,11 @@ bot.on("message", (msg) => {
       timeZone: 'Asia/Kolkata',
     }).format(new Date()),
   };
-  if (!users.find((r) => r.rollNo === rollno)) {
+  const thisUser = users.find((r) => r.rollNo === rollno);
+  if (!thisUser) {
     users.push(myUser);
-  }  
+  } else {
+    thisUser.date = myUser.date;
+  }
   processStudentData(chatId, rollno);
 });
