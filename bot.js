@@ -1,3 +1,4 @@
+import express from "express";
 import TelegramBot from "node-telegram-bot-api";
 import { getSessionId } from "./getSessionId.js";
 import { sendLoginRequest } from "./logincodev2.js";
@@ -69,7 +70,7 @@ const processStudentData = async (chatId, rollno) => {
     await sendResultRequest(rollno, sessionId, antiXsrfToken);
 
     // Step 5: Run Python Script to Scrape Data
-    const studentData = await runPythonScript("scrape.py",rollno);
+    const studentData = await runPythonScript("scrape.py", rollno);
 
     // Send the scraped student data to the user
     bot.sendMessage(chatId, studentData);
@@ -77,16 +78,15 @@ const processStudentData = async (chatId, rollno) => {
     // Delete the "Loading..." message
     await bot.deleteMessage(chatId, loadingMessageId);
   } catch (error) {
-    // console.error(error);
     await bot.deleteMessage(chatId, loadingMessageId);
     bot.sendMessage(chatId, "I'm unable to fetch your results😥");
     bot.sendMessage(chatId, "/help for details");
   }
 };
+
 // Handle `/start` command
 bot.onText(/\/start/, (msg) => {
   const chatId = msg.chat.id;
-  // console.log(chatId)
   bot.sendMessage(
     chatId,
     "Hey TKRian😊! Please enter your roll number for results."
@@ -98,7 +98,7 @@ bot.onText(/\/support/, (msg) => {
   const chatId = msg.chat.id;
   bot.sendMessage(
     chatId,
-    "Thank you for supporting us! More features are coming soon."
+    "Thank you for supporting!! More features yet to come."
   );
 });
 
@@ -113,7 +113,6 @@ bot.onText(/\/help/, (msg) => {
 
 bot.onText(/\/analytics/, (msg) => {
   const chatId = msg.chat.id;
-  // console.log(chatId)
   if (chatId !== adminChatId) {
     bot.sendMessage(chatId, "You are not authorized to view this data.");
     return;
@@ -164,4 +163,17 @@ bot.on("message", (msg) => {
     thisUser.date = myUser.date;
   }
   processStudentData(chatId, rollno);
+});
+
+// Add Express server
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+app.get("/", (req, res) => {
+  res.send("Telegram bot is running!");
+});
+
+// Start Express server
+app.listen(PORT, () => {
+  console.log(`Express server is running on port ${PORT}`);
 });
