@@ -1,4 +1,3 @@
-import express from "express";
 import TelegramBot from "node-telegram-bot-api";
 import { getSessionId } from "./getSessionId.js";
 import { sendLoginRequest } from "./logincodev2.js";
@@ -163,17 +162,4 @@ bot.on("message", (msg) => {
     thisUser.date = myUser.date;
   }
   processStudentData(chatId, rollno);
-});
-
-// Add Express server
-const app = express();
-const PORT = process.env.PORT || 3000;
-
-app.get("/", (req, res) => {
-  res.send("Telegram bot is running!");
-});
-
-// Start Express server
-app.listen(PORT, () => {
-  console.log(`Express server is running on port ${PORT}`);
 });
