@@ -16,7 +16,7 @@ const bot = new TelegramBot(token, { polling: true });
 // Function to run the Python script and capture the output
 const runPythonScript = (scriptPath, rollNo) => {
   return new Promise((resolve, reject) => {
-    const pythonProcess = spawn("python", [scriptPath, rollNo]);
+    const pythonProcess = spawn("python3", [scriptPath, rollNo]);
 
     let outputData = "";
 
