@@ -100,35 +100,35 @@ bot.onText(/\/support/, (msg) => {
   bot.sendMessage(chatId, "Mail me at kcisthe@gmail.com for any queries");
 });
 
-bot.onText(/\/donate/, async (msg) => {
-  const chatId = msg.chat.id;
-  const thisUser = users.find((r) => r.chatId === chatId);
-  try {
-    const { id, short_url } = await createPaymentLink(chatId);
-    thisUser.paymentId = id;
-    // console.log(thisUser.paymentId)
+// bot.onText(/\/donate/, async (msg) => {
+//   const chatId = msg.chat.id;
+//   const thisUser = users.find((r) => r.chatId === chatId);
+//   try {
+//     const { id, short_url } = await createPaymentLink(chatId);
+//     thisUser.paymentId = id;
+//     // console.log(thisUser.paymentId)
 
-    bot.sendMessage(
-      chatId,
-      `Click here to pay: ${short_url}\nAfter payment open the bot and hit /status for your payment status.\nThanks for donating.`
-    );
-  } catch (error) {
-    bot.sendMessage(chatId, `Error: ${error.message}`);
-  }
-});
+//     bot.sendMessage(
+//       chatId,
+//       `Click here to pay: ${short_url}\nAfter payment open the bot and hit /status for your payment status.\nThanks for donating.`
+//     );
+//   } catch (error) {
+//     bot.sendMessage(chatId, `Error: ${error.message}`);
+//   }
+// });
 
-bot.onText(/\/status/, async (msg) => {
-  const chatId = msg.chat.id;
-  const thisUser = users.find((r) => r.chatId === chatId);
-  console.log(thisUser);
-  try {
-    const status = await getPaymentStatus(thisUser.paymentId);
+// bot.onText(/\/status/, async (msg) => {
+//   const chatId = msg.chat.id;
+//   const thisUser = users.find((r) => r.chatId === chatId);
+//   console.log(thisUser);
+//   try {
+//     const status = await getPaymentStatus(thisUser.paymentId);
 
-    bot.sendMessage(chatId, `Last payment status: ${status}`);
-  } catch (error) {
-    bot.sendMessage(chatId, `Error: ${error.message}`);
-  }
-});
+//     bot.sendMessage(chatId, `Last payment status: ${status}`);
+//   } catch (error) {
+//     bot.sendMessage(chatId, `Error: ${error.message}`);
+//   }
+// });
 
 // bot.onText(/\/me/, (msg) => {
 //   const chatId = msg.chat.id;
@@ -147,6 +147,15 @@ bot.onText(/\/status/, async (msg) => {
 //     }`
 //   );
 // });
+
+
+bot.onText(/\/donate/, async (msg) => {
+    const chatId = msg.chat.id;
+      bot.sendMessage(
+        chatId,
+        `Click here to pay: https://razorpay.me/@krishnachaitanyakattoju\nThanks for helping the service.`
+      );
+  });
 
 // Handle `/help` command
 bot.onText(/\/help/, (msg) => {
