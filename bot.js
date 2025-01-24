@@ -4,7 +4,7 @@ import { sendLoginRequest } from "./logincodev2.js";
 import { sendResultRequest } from "./results.js";
 import { spawn } from "child_process";
 import dotenv from "dotenv/config";
-import { createPaymentLink, getPaymentStatus } from "./pay.js";
+// import { createPaymentLink, getPaymentStatus } from "./pay.js";
 
 const token = process.env.TELEGRAM_BOT_TOKEN;
 const adminChatId = Number(process.env.ADMIN_CHAT_ID);
