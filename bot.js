@@ -4,18 +4,20 @@ import { sendLoginRequest } from "./logincodev2.js";
 import { sendResultRequest } from "./results.js";
 import { spawn } from "child_process";
 import dotenv from "dotenv/config";
+import { createPaymentLink, getPaymentStatus } from "./pay.js";
 
 const token = process.env.TELEGRAM_BOT_TOKEN;
 const adminChatId = Number(process.env.ADMIN_CHAT_ID);
+
 const users = [];
 
-// Create a new Telegram bot instance with polling enabled
+// Create a new Telegram bot instance with polling enabledF
 const bot = new TelegramBot(token, { polling: true });
 
 // Function to run the Python script and capture the output
 const runPythonScript = (scriptPath, rollNo) => {
   return new Promise((resolve, reject) => {
-    const pythonProcess = spawn("python3", [scriptPath, rollNo]);
+    const pythonProcess = spawn("python", [scriptPath, rollNo]);
 
     let outputData = "";
 
@@ -95,18 +97,63 @@ bot.onText(/\/start/, (msg) => {
 // Handle `/support` command
 bot.onText(/\/support/, (msg) => {
   const chatId = msg.chat.id;
-  bot.sendMessage(
-    chatId,
-    "Thank you for supporting!! More features yet to come."
-  );
+  bot.sendMessage(chatId, "Mail me at kcisthe@gmail.com for any queries");
 });
+
+bot.onText(/\/donate/, async (msg) => {
+  const chatId = msg.chat.id;
+  const thisUser = users.find((r) => r.chatId === chatId);
+  try {
+    const { id, short_url } = await createPaymentLink(chatId);
+    thisUser.paymentId = id;
+    // console.log(thisUser.paymentId)
+
+    bot.sendMessage(
+      chatId,
+      `Click here to pay: ${short_url}\nAfter payment open the bot and hit /status for your payment status.\nThanks for donating.`
+    );
+  } catch (error) {
+    bot.sendMessage(chatId, `Error: ${error.message}`);
+  }
+});
+
+bot.onText(/\/status/, async (msg) => {
+  const chatId = msg.chat.id;
+  const thisUser = users.find((r) => r.chatId === chatId);
+  console.log(thisUser);
+  try {
+    const status = await getPaymentStatus(thisUser.paymentId);
+
+    bot.sendMessage(chatId, `Last payment status: ${status}`);
+  } catch (error) {
+    bot.sendMessage(chatId, `Error: ${error.message}`);
+  }
+});
+
+// bot.onText(/\/me/, (msg) => {
+//   const chatId = msg.chat.id;
+//   const thisUser = users.find((r) => r.chatId === chatId);
+//   console.log(thisUser)
+//   bot.sendMessage(
+//     chatId,
+//     `Your details:\nRoll Number: ${thisUser.rollNo}\nLast used: ${
+//       thisUser.date
+//     }\nPayments: ${
+//       thisUser.payments.length === 0
+//         ? "No payments to show"
+//         : thisUser.payments.forEach((payment) => {
+//             return `${payment.id}: ${payment.status}`;
+//           })
+//     }`
+//   );
+// });
 
 // Handle `/help` command
 bot.onText(/\/help/, (msg) => {
   const chatId = msg.chat.id;
   bot.sendMessage(
     chatId,
-    "Commands you can use:\n/start - Start the bot\n/support - Show support message\n/help - List all commands"
+    "Commands you can use:\n/start - Start the bot\n/support - For your queries\n/donate - For showing your support to the service\n/status - For your payment status\n/help - List all commands"
   );
 });
 
@@ -119,7 +166,7 @@ bot.onText(/\/analytics/, (msg) => {
   bot.sendMessage(
     chatId,
     `Analytics:\nTotal users: ${users.length}\nUsers:\n${users
-      .map((u) => `${u.rollNo} | ${u.date}`)
+      .map((u) => `${u.rollNo ?? u.chatId} | ${u.date}`)
       .join("\n")}`
   );
 });
@@ -128,6 +175,26 @@ bot.onText(/\/analytics/, (msg) => {
 bot.on("message", (msg) => {
   const chatId = msg.chat.id;
   const message = msg.text.trim();
+
+  const thisUser = users.find((r) => r.chatId === chatId);
+
+  if (!thisUser) {
+    const myUser = {
+      rollNo: null,
+      chatId: chatId,
+      date: new Intl.DateTimeFormat("en-US", {
+        year: "numeric",
+        month: "numeric",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+        timeZone: "Asia/Kolkata",
+      }).format(new Date()),
+      paymentId: null,
+    };
+    users.push(myUser);
+  }
 
   // If the message starts with `/`, it's a command, so do nothing further
   if (message.startsWith("/")) {
@@ -142,24 +209,16 @@ bot.on("message", (msg) => {
     bot.sendMessage(chatId, "Please enter a valid roll number.");
     return;
   }
-  const myUser = {
-    rollNo: rollno,
-    chatId: chatId,
-    date: new Intl.DateTimeFormat("en-US", {
-      year: "numeric",
-      month: "numeric",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true,
-      timeZone: "Asia/Kolkata",
-    }).format(new Date()),
-  };
-  const thisUser = users.find((r) => r.rollNo === rollno);
-  if (!thisUser) {
-    users.push(myUser);
-  } else {
-    thisUser.date = myUser.date;
-  }
-  processStudentData(chatId, rollno);
+
+  thisUser.rollNo = rollno;
+  (thisUser.date = new Intl.DateTimeFormat("en-US", {
+    year: "numeric",
+    month: "numeric",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+    timeZone: "Asia/Kolkata",
+  }).format(new Date())),
+    processStudentData(chatId, rollno);
 });
