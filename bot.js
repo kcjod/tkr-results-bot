@@ -162,7 +162,7 @@ bot.onText(/\/help/, (msg) => {
   const chatId = msg.chat.id;
   bot.sendMessage(
     chatId,
-    "Commands you can use:\n/start - Start the bot\n/support - For your queries\n/donate - For showing your support to the service\n/status - For your payment status\n/help - List all commands"
+    "Commands you can use:\n/start - Start the bot\n/support - For your queries\n/donate - For donating to the service\n/help - List all commands"
   );
 });
 
